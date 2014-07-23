@@ -72,6 +72,7 @@ class IndexedPage(models.Model):
 
     synonym = models.ForeignKey("self",
                                 null = True,
+                                related_name = "synonyms",
                                 db_column = CONST.INDEXEDPAGE_SYNONYM_DB_NAME)
 
     indegree = models.IntegerField(null = True,
