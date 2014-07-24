@@ -16,7 +16,7 @@ class CONST(object):
     INDEXEDPAGE_RAW_HTML_DB_NAME = "Raw HTML"
     INDEXEDPAGE_TEXT_CONTENT_DB_NAME = "Parsed Text"
     INDEXEDPAGE_RAW_HTML__HASH_DB_NAME = "HTML Hash"
-    INDEXEDPAGE_SYNONYM_DB_NAME = "Preferred Name"
+    INDEXEDPAGE_ORIGINAL_PAGE_DB_NAME = "Original Page"
     INDEXEDPAGE_INDEGREE_DB_NAME = "In-degree"
 
 
@@ -36,11 +36,9 @@ class WordLocations(models.Model):
     locations = models.CharField(max_length = CONST.LOCATIONS_MAX_LENGTH,
                                  db_column = CONST.WORDLOCATIONS_LOCATIONS_DB_NAME)
 
-    def add_location(self, new_location):
-        if len(self.locations):
-            self.locations += ("," + str(new_location))
-        else:
-            self.locations = str(new_location)
+    def set_locations(self, locations):
+        self.locations = str(locations)
+
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -48,10 +46,10 @@ class WordLocations(models.Model):
         super(WordLocations, self).save(*args, **kwargs)
 
     def get_locations(self):
-        return [self.locations.split(",")]
+        return [int(x) for x in self.locations if x.isdigit()]
 
     def __unicode__(self):
-        return "WordLocations<word:{word},url:{url},locations:[{locations}]>".format(
+        return "WordLocations<word:{word},url:{url},locations:{locations}>".format(
                 word = str(self.word), url = str(self.url), locations = str(self.locations))
 
 class IndexedPage(models.Model):
@@ -70,16 +68,25 @@ class IndexedPage(models.Model):
     raw_html_hash = models.IntegerField(null = True,
                                         db_column = CONST.INDEXEDPAGE_RAW_HTML__HASH_DB_NAME)
 
-    synonym = models.ForeignKey("self",
+    original_page = models.ForeignKey("self",
                                 null = True,
                                 related_name = "synonyms",
-                                db_column = CONST.INDEXEDPAGE_SYNONYM_DB_NAME)
+                                db_column = CONST.INDEXEDPAGE_ORIGINAL_PAGE_DB_NAME)
 
     indegree = models.IntegerField(null = True,
                                    db_column = CONST.INDEXEDPAGE_INDEGREE_DB_NAME)
 
-    def get_all_words(self):
+    def get_words(self):
         return self.words.all()
+    
+    def get_synonyms(self):
+        if self.original_page == None:
+            return self.synonyms.all()
+        else:
+            all_synonyms = set(self.original_page.synonyms.all())
+            all_synonyms.remove(self)
+            all_synonyms.add(self.original_page)
+            return list(all_synonyms)
 
     def __unicode__(self):
         return "IndexedPage<{url}>".format(url = str(self.url))
