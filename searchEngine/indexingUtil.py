@@ -4,7 +4,7 @@ import lxml.html
 
 
 url = "http://www.facebook.com"
-html = urlopen(url).read()    
+html = urlopen(indexedPage).read()    
 raw = nltk.clean_html(html)  
 #print(nltk.word_tokenize(raw))
 print(html)

@@ -1,4 +1,5 @@
 from django.db import models
+import re
 
 class CONST(object):
     WORD_MAX_LENGTH = 70
@@ -7,12 +8,12 @@ class CONST(object):
     HTML_TEXT_CONTENT_MAX_LENGTH = 10 * (1000)
     LOCATIONS_MAX_LENGTH = 0.5 * (1000)
 
-    WORDLOCATIONS_WORD_DB_NAME = "Word"
-    WORDLOCATIONS_URL_DB_NAME = "Url"
-    WORDLOCATIONS_UNIQUE_ID_DB_NAME = "Unique ID"
-    WORDLOCATIONS_LOCATIONS_DB_NAME = "Locations"
+    WORDININDEXEDPAGE_WORD_DB_NAME = "Word"
+    WORDININDEXEDPAGE_INDEXEDPAGE_DB_NAME = "IndexedPage"
+    WORDININDEXEDPAGE_UNIQUE_ID_DB_NAME = "Unique ID"
+    WORDININDEXEDPAGE_OFFSETSININDEXEDPAGE_DB_NAME = "Offsets"
 
-    INDEXEDPAGE_URL_DB_NAME = "Url"
+    INDEXEDPAGE_URL_DB_NAME = "URL"
     INDEXEDPAGE_RAW_HTML_DB_NAME = "Raw HTML"
     INDEXEDPAGE_TEXT_CONTENT_DB_NAME = "Parsed Text"
     INDEXEDPAGE_RAW_HTML__HASH_DB_NAME = "HTML Hash"
@@ -20,37 +21,37 @@ class CONST(object):
     INDEXEDPAGE_INDEGREE_DB_NAME = "In-degree"
 
 
-class WordLocations(models.Model):
+class WordFromIndexedPage(models.Model):
     word = models.CharField(max_length = CONST.WORD_MAX_LENGTH,
                             null = False,
-                            db_column = CONST.WORDLOCATIONS_WORD_DB_NAME)
+                            db_column = CONST.WORDININDEXEDPAGE_WORD_DB_NAME)
 
-    url = models.ForeignKey("IndexedPage",
+    indexedPage = models.ForeignKey("IndexedPage",
                             null = False,
                             related_name = "words",
-                            db_column = CONST.WORDLOCATIONS_URL_DB_NAME)
+                            db_column = CONST.WORDININDEXEDPAGE_INDEXEDPAGE_DB_NAME)
 
     _unique_id = models.IntegerField(primary_key = True,
-                                     db_column = CONST.WORDLOCATIONS_UNIQUE_ID_DB_NAME)
+                                     db_column = CONST.WORDININDEXEDPAGE_UNIQUE_ID_DB_NAME)
 
-    locations = models.CharField(max_length = CONST.LOCATIONS_MAX_LENGTH,
-                                 db_column = CONST.WORDLOCATIONS_LOCATIONS_DB_NAME)
+    offsets_in_indexedPage = models.CharField(max_length = CONST.LOCATIONS_MAX_LENGTH,
+                                 db_column = CONST.WORDININDEXEDPAGE_OFFSETSININDEXEDPAGE_DB_NAME)
 
-    def set_locations(self, locations):
-        self.locations = str(locations)
+    def set_offsets(self, locations):
+        self.offsets_in_indexedPage = str(locations)
 
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self._unique_id = hash(str(self.word) + str(self.url.url))
-        super(WordLocations, self).save(*args, **kwargs)
+            self._unique_id = hash(str(self.word) + str(self.indexedPage.url))
+        super(WordFromIndexedPage, self).save(*args, **kwargs)
 
-    def get_locations(self):
-        return [int(x) for x in self.locations if x.isdigit()]
+    def get_offsets(self):
+        return map(int, re.findall('\d+', self.offsets_in_indexedPage))
 
     def __unicode__(self):
-        return "WordLocations<word:{word},url:{url},locations:{locations}>".format(
-                word = str(self.word), url = str(self.url), locations = str(self.locations))
+        return "WordFromIndexedPage<word:{word},indexedPage:{indexedPage},offsets_in_indexedPage:{offsets_in_indexedPage}>".format(
+                word = str(self.word), indexedPage = str(self.indexedPage.url), offsets_in_indexedPage = str(self.offsets_in_indexedPage))
 
 class IndexedPage(models.Model):
     url = models.CharField(primary_key = True,
@@ -78,7 +79,7 @@ class IndexedPage(models.Model):
 
     def get_words(self):
         return self.words.all()
-    
+
     def get_synonyms(self):
         if self.original_page == None:
             return self.synonyms.all()

@@ -1,4 +1,4 @@
-from searchEngine.models import WordLocations,IndexedPage
+from searchEngine.models import WordFromIndexedPage,IndexedPage
 
 googlePage = IndexedPage(url="http://www.google.com")
 googlePage.save()
@@ -8,12 +8,12 @@ googleWord = "google"
 googleWord2 = "google2"
 
 
-googleWordLocation = WordLocations(url=googlePage,word=googleWord)
-googleWordLocation.set_locations([1])
+googleWordLocation = WordFromIndexedPage(indexedPage=googlePage,word=googleWord)
+googleWordLocation.set_offsets([1])
 googleWordLocation.save()
 
-googleWord2Location = WordLocations(url=googlePage,word=googleWord2)
-googleWord2Location.set_locations([1])
+googleWord2Location = WordFromIndexedPage(indexedPage=googlePage,word=googleWord2)
+googleWord2Location.set_offsets([1])
 googleWord2Location.save()
 
 print "--"*100
