@@ -29,8 +29,7 @@ url = IndexedPage.objects.get(pk = "http://www.google.com")
 for word in list_of_words:
     wordL = None
     if not word in cache:
-        cache[word] = WordLocations(url=url, word=word)
-    
+        cache[word] = WordLocations(url=url, word=word)  
     
     
 #     if word in cache:
@@ -48,7 +47,6 @@ for word in list_of_words:
 for key in cache.keys():
     cache[key].set_locations(cacheWordLocation[key])
     
-
 
     # DO NOT SAVE() each time ;)
 all_models_to_save = cache.values()
