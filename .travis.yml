@@ -1,5 +1,9 @@
 language: python
 
+notifications:
+  email:
+    - tse.developers@gmail.com
+
 # command to install dependencies
 install:
   - pip install django==1.6.5
