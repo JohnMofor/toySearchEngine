@@ -1,0 +1,7 @@
+language: python
+
+# command to install dependencies
+install:
+  - pip install django==1.6.5
+# command to run tests
+script: python manage.py test
