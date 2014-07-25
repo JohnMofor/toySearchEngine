@@ -19,6 +19,12 @@ class CONST(object):
     INDEXEDPAGE_RAW_HTML__HASH_DB_NAME = "HTML Hash"
     INDEXEDPAGE_ORIGINAL_PAGE_DB_NAME = "Original Page"
     INDEXEDPAGE_INDEGREE_DB_NAME = "In-degree"
+    
+    def __setattr__(self, attr, value):
+        if hasattr(self, attr):
+            raise Exception("Attempting to alter read-only value")
+
+        self.__dict__[attr] = value
 
 
 class WordFromIndexedPage(models.Model):
