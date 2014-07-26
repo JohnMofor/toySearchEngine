@@ -20,7 +20,7 @@ def bulk_save(queryset):
 cache = {}  # word<String> : wordL<WordFromIndexedPage>
 cacheWordLocation = defaultdict(list)
 
-# it's ok, we do this just ones...-ish
+# it's ok, we do this just once...-ish
 url = IndexedPage.objects.get(pk = "http://www.google.com")
 for word in list_of_words:
     if not word in cache:
