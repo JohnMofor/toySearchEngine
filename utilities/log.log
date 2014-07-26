@@ -1,0 +1,6 @@
+John - 2014-07-26 17:24:00 - tse.u - DEBUG - util.py - format_http_url - ln #17 - 	About to format url=www.google.com
+John - 2014-07-26 17:24:00 - tse.u - DEBUG - util.py - format_http_url - ln #22 - 	formatted raw_url=www.google.com to http:///www.google.com
+John - 2014-07-26 17:26:37 - tse.u - DEBUG - util.py - format_http_url - ln #17 - About to format url=www.google.com
+John - 2014-07-26 17:26:37 - tse.u - DEBUG - util.py - format_http_url - ln #22 - formatted raw_url=www.google.com to http:///www.google.com
+John - 2014-07-26 18:00:09 - tse.u - DEBUG - util.py - format_http_url - ln #15 - About to format url=www.google.com
+John - 2014-07-26 18:00:09 - tse.u - DEBUG - util.py - format_http_url - ln #20 - formatted raw_url=www.google.com to http:///www.google.com

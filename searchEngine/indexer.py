@@ -2,7 +2,7 @@ from searchEngine.models import WordFromIndexedPage,IndexedPage
 from django.db.transaction import commit_on_success
 from collections import defaultdict
 import requests
-import util
+from utilities import util
 import nltk
 import re 
 
@@ -47,7 +47,7 @@ class Indexer(object):
         self.bulk_save(all_models_to_save)
         
     def final_url_after_redirects(self):     
-        formatted_http_url = util.format_http_url(self.url)
+        formatted_http_url = utilities.util.format_http_url(self.url)
         try:
             r = requests.head(formatted_http_url, allow_redirects=True)
             if r.status_code == 200:

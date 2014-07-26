@@ -1,11 +1,20 @@
 language: python
 
-notifications:
-  email:
-    - tse.developers@gmail.com
-
 # command to install dependencies
 install:
-  - pip install django==1.6.5
+  - pip install -r utilities/requirements.txt
+
 # command to run tests
 script: python manage.py test
+
+# command to gauge test coverage AFTER success
+after_script: coverage run --source=searchEngine, manage.py test
+after_script: coverage report -m 
+
+# notify the squad
+notifications:
+  email:
+    recipients:
+      - tse.developers@gmail.com
+    on_success: always
+    on_failure: always
