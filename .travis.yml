@@ -5,10 +5,10 @@ install:
   - pip install -r utilities/requirements.txt
 
 # command to run tests
-script: python manage.py test
+script: coverage run --source=searchEngine, manage.py test
+
 
 # command to gauge test coverage AFTER success
-after_script: coverage run --source=searchEngine, manage.py test
 after_script: coverage report -m 
 
 # notify the squad
