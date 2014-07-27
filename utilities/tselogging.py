@@ -1,10 +1,8 @@
 from logging import *  # @UnusedWildImport
 import logging.config  # To make this module more portable.
-import yaml
 import getpass
-
-
-PATH_TO_LOG_CFG_FILE = "logcfg.yml"
+import inspect
+from toySearchEngine.settings import LOGGING
 
 
 class TseLogRecord(logging.LogRecord):
@@ -32,12 +30,10 @@ class TseLogger(logging.getLoggerClass()):
 
 
 def setupTseLogger():
-    if logging.getLoggerClass() != TseLogger:
-        print "Initializing TseLogger"
-        logging.setLoggerClass(TseLogger)
-        with open(PATH_TO_LOG_CFG_FILE, 'rt') as f:
-            config = yaml.load(f.read())
-        logging.config.dictConfig(config)
+    print "Initializing TseLogger"
+    logging.setLoggerClass(TseLogger)
+    logging.config.dictConfig(LOGGING)
+    print "TseLogger initialization complete"
 
 # Perform the TseLogger Initialization
 setupTseLogger()

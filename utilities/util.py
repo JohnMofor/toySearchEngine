@@ -1,7 +1,7 @@
 import utilities.tselogging as logging
 import urlparse
 
-logger = logging.getLogger('tse.u')
+logger = logging.getLogger('tse.u.util')
 
 class UTIL(object):
 
@@ -22,3 +22,5 @@ def format_http_url(url):
     logger.debug("formatted raw_url={raw_url} to {out_url}".format(
         raw_url=raw_url, out_url=out_url))
     return out_url
+
+format_http_url("asldkf.com")

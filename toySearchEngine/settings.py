@@ -7,6 +7,8 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
+# For logging
+import yaml
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -81,3 +83,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Override Log configurations
+PATH_TO_LOG_CFG_FILE = os.path.join(BASE_DIR, "utilities", "logcfg.yml")
+
+
+def process_log_cfg_file():
+    logFile = yaml.load(open(PATH_TO_LOG_CFG_FILE, 'rt').read())
+    for h in logFile["handlers"].keys():
+        if "filename" in logFile["handlers"][h]:
+            logFile["handlers"][h]["filename"] = os.path.abspath(os.path.join(
+                BASE_DIR, "utilities", logFile["handlers"][h]["filename"]))
+    return logFile
+
+
+LOGGING = process_log_cfg_file()
+
+print LOGGING

@@ -1,6 +1,10 @@
 from searchEngine.models import WordFromIndexedPage, IndexedPage
 from django.db.transaction import commit_on_success
 from collections import defaultdict
+import utilities.tselogging as logging
+
+logger = logging.getLogger("tse.se.example")
+
 
 # Example executions.
 # Say "google" is an already saved WordFromIndexedPage Instance, and we get these words from nltk clean html
@@ -14,7 +18,6 @@ list_of_words = ["new", "google", "googl3", "google4"]
 @commit_on_success
 def bulk_save(queryset):
     for item in queryset:
-        print "saving: ", item
         item.save()
 
 cache = {}  # word<String> : wordL<WordFromIndexedPage>
@@ -26,17 +29,6 @@ for word in list_of_words:
     if not word in cache:
         cache[word] = WordFromIndexedPage(indexedPage=url, word=word)  
     
-    
-#     if word in cache:
-#         wordL = cache[word]
-#         
-#     else:
-#          unfortunately wordL wasn't in memory, let's go get it from disk,
-#          Notice, the get_or_create... better than obj.get (1 disk access) then check
-#          if the obj was non null and may create it (another disk access).
-#         wordL, was_created = WordFromIndexedPage.objects.get_or_create(url = url, word = word)
-#          and cache it!
-#         cache[word] = wordL
     cacheWordLocation[word].append(32)
 
 for key in cache.keys():
@@ -55,6 +47,4 @@ raw_input("Inspect database (F5=refresh),\
 
 for update in cache.values(): update.delete()
 WordFromIndexedPage(indexedPage = url, word = "google", offsets_in_indexedPage = str([1])).save()
-
-
 
