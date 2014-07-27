@@ -99,5 +99,3 @@ def process_log_cfg_file():
 
 
 LOGGING = process_log_cfg_file()
-
-print LOGGING
