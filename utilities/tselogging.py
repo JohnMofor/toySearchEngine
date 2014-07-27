@@ -1,7 +1,6 @@
 from logging import *  # @UnusedWildImport
 import logging.config  # To make this module more portable.
 import getpass
-import inspect
 from toySearchEngine.settings import LOGGING
 
 
