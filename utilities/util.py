@@ -3,6 +3,7 @@ import urlparse
 
 logger = logging.getLogger('tse.u.util')
 
+
 class UTIL(object):
 
     def __init__(self):
@@ -13,7 +14,8 @@ class UTIL(object):
 
 
 def format_http_url(url):
-    logger.debug("About to format url={url}".format(url=url))
+    logger.debug(
+        "About to format url={url}".format(url=url))
     raw_url = url
     parsed_url = urlparse.urlparse(raw_url)
     formatted_url = urlparse.urlparse(
@@ -23,4 +25,3 @@ def format_http_url(url):
         raw_url=raw_url, out_url=out_url))
     return out_url
 
-format_http_url("asldkf.com")

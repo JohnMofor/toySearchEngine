@@ -15,9 +15,19 @@ class TseLogRecord(logging.LogRecord):
 
 class TseLogger(logging.getLoggerClass()):
 
-    """ Used to inject TseLogRecord into logging """
+    """Used to inject TseLogRecord into logging."""
 
-    def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None):
+    def makeRecord(
+            self,
+            name,
+            level,
+            fn,
+            lno,
+            msg,
+            args,
+            exc_info,
+            func=None,
+            extra=None):
         rec = TseLogRecord(name, level, fn, lno, msg, args, exc_info, func)
         if extra is not None:
             for key in extra:
