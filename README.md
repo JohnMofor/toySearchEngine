@@ -4,7 +4,7 @@ TSE is a simple end to end "domain-restricted" search engine.
 
 ##Components
 
-Built solely for educational reasons, TSE is built with on a variety of technologies, including:
+Built solely for educational reasons, TSE is attempts to utilize a variety of technologies, including:
   - A web crawler #Python
   - An indexer #Python
   - Database Management systems 
