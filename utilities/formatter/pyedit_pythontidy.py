@@ -35,8 +35,6 @@ assert editor is not None
 
 if cmd == 'onCreateActions':
 
-    # from org.eclipse.jface.action import Action
-
     from org.python.pydev.editor.actions import PyAction  # @UnresolvedImport
 
     from org.eclipse.swt.widgets import Display  # @UnresolvedImport
@@ -53,8 +51,12 @@ if cmd == 'onCreateActions':
 
     FormatterLogger = systemGlobals.get('FormatterLogger')
     if FormatterLogger is None:
-
+        
         class FormatterLogger(object):
+            '''
+            We can't let this Formatter's trace into our main log.
+            Let's just print it out into stdout.
+            '''
 
             def __init__(self, fileName):
                 self._fileName = fileName
