@@ -1,5 +1,6 @@
 import utilities.tselogging as logging
 import urlparse
+from django.db.transaction import commit_on_success
 
 logger = logging.getLogger('tse.u.util')
 
@@ -11,6 +12,11 @@ class UTIL(object):
 
     def __setattr__(self, attr, value):
         pass
+
+@commit_on_success
+def bulk_save(queryset):
+    for item in queryset:
+        item.save()
 
 
 def format_http_url(url):

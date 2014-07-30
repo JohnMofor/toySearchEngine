@@ -1,8 +1,6 @@
-from searchEngine.models import WordFromIndexedPage, IndexedPage
-from django.db.transaction import commit_on_success
 from collections import defaultdict
 import requests
-from utilities import util
+from utilities.util import bulk_save, format_http_url
 import nltk
 import re
 
@@ -15,21 +13,12 @@ class CONST(object):
         pass
 
 
-
-
 class Indexer(object):
 
     def __init__(self, url):
         self.url = url
         self.cache = {}
-        self.WordLocationCache = defaultdict(list)
-
-    # same function as in the example file
-    @commit_on_success
-    def bulk_save(self, queryset):
-        for item in queryset:
-            print "saving: ", item
-            item.save()
+        self.word_location_cache = defaultdict(list)
 
     def populate_indexedPage(self, final_url):
         raw_html = requests.get(final_url).content
@@ -44,10 +33,10 @@ class Indexer(object):
 
         all_models_to_save = self.cache.values()
         all_models_to_save.append(final_url)
-        self.bulk_save(all_models_to_save)
+        bulk_save(all_models_to_save)
 
     def final_url_after_redirects(self):
-        formatted_http_url = util.format_http_url(self.url)
+        formatted_http_url = format_http_url(self.url)
         try:
             r = requests.head(formatted_http_url, allow_redirects=True)
             if r.status_code == 200:
@@ -58,6 +47,6 @@ class Indexer(object):
     def start(self):
         final_url = Indexer.final_url_after_redirects(self)
         if final_url is None:
-            print("this page does not exist!")
+            print "this page does not exist!"
             return
         self.populate_indexedPage(final_url)

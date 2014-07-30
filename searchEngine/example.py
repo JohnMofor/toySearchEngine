@@ -1,7 +1,7 @@
 from searchEngine.models import WordFromIndexedPage, IndexedPage
-from django.db.transaction import commit_on_success
 from collections import defaultdict
 import utilities.tselogging as logging
+from utilities.util import bulk_save
 
 logger = logging.getLogger("tse.se.example")
 
@@ -16,11 +16,6 @@ list_of_words = ["new", "google", "googl3", "google4"]
 # we could cache stuffs, and batch save all objects at the end :)
 # with a function like:
 
-
-@commit_on_success
-def bulk_save(queryset):
-    for item in queryset:
-        item.save()
 
 cache = {}  # word<String> : wordL<WordFromIndexedPage>
 cacheWordLocation = defaultdict(list)

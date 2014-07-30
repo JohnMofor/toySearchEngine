@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
 TSE Eclipse Formatter Jython script.
 
@@ -11,10 +14,12 @@ To enable: Window -> Preferences -> PyDev (expanded) -> Scripting PyDev:
     3) Apply and OK!
     4) View log on PyDev Scripting Console (it automatically starts a low priority console)
     5) Now you can Ctrl+Shift+f to format away!
+        Or Ctrl+2, then "f"
 
 Script inspired by: http://bear330.wordpress.com/
 
 """
+
 # ===============================================================================
 # Pydev Extensions in Jython code protocol
 # ===============================================================================
@@ -23,126 +28,187 @@ if False:
     from org.python.pydev.editor import PyEdit  # @UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
+    systemGlobals = {}
 
 assert cmd is not None
 assert editor is not None
 
 if cmd == 'onCreateActions':
+
     # from org.eclipse.jface.action import Action
+
     from org.python.pydev.editor.actions import PyAction  # @UnresolvedImport
-    from org.python.pydev.core.docutils import PySelection  # @UnresolvedImport
-    from java.lang import Runnable  # @UnresolvedImport
+
     from org.eclipse.swt.widgets import Display  # @UnresolvedImport
-    from org.eclipse.jface.text import IDocument  # @UnresolvedImport
-    from org.eclipse.jface.text import TextSelection  # @UnresolvedImport
 
     from java.io import FileWriter  # @UnresolvedImport
+
     import java.lang.Exception  # @UnresolvedImport
+    from java.lang import Runnable  # @UnresolvedImport
 
-    FORMAT_ACTION_DEFINITION_ID = "org.python.pydev.editor.actions.pyFormatStd"
-    FORMAT_ACTION_ID = "org.python.pydev.editor.actions.navigation.pyFormatStd"
+    FORMAT_ACTION_DEFINITION_ID = \
+        'org.python.pydev.editor.actions.pyFormatStd'
+    FORMAT_ACTION_ID = \
+        'org.python.pydev.editor.actions.navigation.pyFormatStd'
 
-    def autopep8_cmd(f):
-        return 'autopep8 -a -a -a --in-place --experimental "{f}"'.format(
-            f=str(f))
+    FormatterLogger = systemGlobals.get('FormatterLogger')
+    if FormatterLogger is None:
 
-    def docformatter_cmd(f):
-        return 'docformatter --in-place --pre-summary-newline "{f}"'.format(
-            f=str(f))
+        class FormatterLogger(object):
 
-    def apply_formatting(source_file, fileName):
-        """Applies formatting on the input source_file with file name =
-        fileName (from editor)"""
+            def __init__(self, fileName):
+                self._fileName = fileName
 
-        import subprocess
-        f = source_file
-        final_formatting_cmd = '({autopep8}) && ({docformatter})'.format(
-            autopep8=autopep8_cmd(f),
-            docformatter=docformatter_cmd(f))
-        print 'Formatter:INFO: Will be running $' + final_formatting_cmd
-        exec_frame = subprocess.Popen(
-            final_formatting_cmd,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        (cstdout, cstderr) = exec_frame.communicate()
-        if cstderr:
-            print 'Formatter:ERROR:' + cstderr
-        if cstdout:
-            print 'Formatter:INFO:' + cstdout
-        print 'Formatter:INFO: Formatting for {fileName} complete with return_code:{rt}'.\
-            format(fileName=fileName, rt=exec_frame.returncode)
+            def _log(self, level, msg):
+                import datetime
+                now = datetime.datetime.now()
+                print '{date} - Formatter:{level} - {fileName} - {msg}'.\
+                    format(date=now.strftime('%Y-%m-%d %H:%M'
+                                             ), level=level, fileName=self._fileName,
+                           msg=msg)
 
-    class PythonTidyAction(PyAction):
+            def debug(self, msg):
+                self._log('DEBUG', msg)
 
-        def __init__(self, *args, **kws):
-            PyAction.__init__(self, *args, **kws)
+            def info(self, msg):
+                self._log('INFO', msg)
 
-        def run(self):
-            import tempfile
-            import os
-            import traceback
+            def warn(self, msg):
+                self._log('WARNING', msg)
 
-            try:
-                ps = editor.createPySelection()  # PySelection(editor)
-                doc = ps.getDoc()
-                startLine = ps.getStartLineIndex()
+            def error(self, msg):
+                self._log('ERROR', msg)
 
-                tmp_src = tempfile.mktemp()
-                tmp_src_fileWriter = FileWriter(tmp_src)
+        systemGlobals['FormatterLogger'] = FormatterLogger
 
-                formatAll = False
-                if ps.getTextSelection().getLength() == 0:
-                    # format all.
-                    c = doc.get()
-                    tmp_src_fileWriter.write(c)
-                    formatAll = True
-                else:
-                    # format selection.
-                    # c = ps.getSelectedText()
-                    # tmp_src_fileWriter.write(ps.getSelectedText())
-                    print "Format selected text is not supported yet."
-                    tmp_src_fileWriter.write("")
-                    # A kind of solution is to insert a special comment in
-                    # front and end of selection text, pythontidy it, and
-                    # extract text according that comment.
+    logger = FormatterLogger(editor.getEditorFile().getName())
 
-                tmp_src_fileWriter.close()
+    PythonTidyAction = systemGlobals.get("PythonTidyAction")
+    if PythonTidyAction is None:
+        class PythonTidyAction(PyAction):
 
-                apply_formatting(tmp_src, editor.getEditorFile().getName())
+            def __init__(self, editor):
+                PyAction.__init__(self)
+                self._editor = editor
 
-                resulting_file = open(tmp_src, "r")
-                result = resulting_file.read()
-                resulting_file.close()
+            @staticmethod
+            def autopep8_cmd(f):  # @NoSelf
+                return 'autopep8 -a -a -a --in-place --experimental "{f}"'.format(
+                    f=str(f))
 
-                os.remove(tmp_src)
+            @staticmethod
+            def docformatter_cmd(f):  # @NoSelf
+                return 'docformatter --in-place --pre-summary-newline "{f}"'.format(
+                    f=str(f))
 
-                if startLine >= doc.getNumberOfLines():
-                    startLine = doc.getNumberOfLines() - 1
+            @staticmethod
+            def apply_formatting(source_file, fileName, logger):  # @NoSelf
+                """Applies formatting on the input source_file with file name =
+                fileName (from editor)"""
+                import subprocess
+                f = source_file
+                final_formatting_cmd = '({autopep8}) && ({docformatter})'.format(
+                    autopep8=PythonTidyAction.autopep8_cmd(f),
+                    docformatter=PythonTidyAction.docformatter_cmd(f))
+                logger.info('Will be running $' + final_formatting_cmd)
+                exec_frame = subprocess.Popen(
+                    final_formatting_cmd,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                (cstdout, cstderr) = exec_frame.communicate()
+                if cstderr:
+                    logger.error(cstderr)
+                if cstdout:
+                    logger.info(cstdout)
+                logger.info(
+                    'Formatting for {fileName} complete with return_code:{rt}'.format(
+                        fileName=fileName,
+                        rt=exec_frame.returncode))
 
-                if formatAll:
-                    doc.set(result)
-                else:
-                    # doc.replace(doc.getLineOffset(startLine), 0, result)
-                    pass
+            def run(self):
+                import tempfile
+                import os
+                import traceback
 
-                # sel = TextSelection(doc, doc.getLineOffset(startLine), 0)
-                # self.getTextEditor()#.getSelectionProvider().setSelection(sel)
-            except java.lang.Exception as e:
-                self.beep(e)
-                print traceback.format_exc()
-            except:
-                print traceback.format_exc()
+                logger = FormatterLogger(
+                    self._editor.getEditorFile().getName())
+
+                try:
+                    # PySelection(editor)
+                    ps = self._editor.createPySelection()
+                    doc = ps.getDoc()
+                    startLine = ps.getStartLineIndex()
+
+                    tmp_src = tempfile.mktemp()
+                    tmp_src_fileWriter = FileWriter(tmp_src)
+
+                    formatAll = False
+                    if ps.getTextSelection().getLength() == 0:
+
+                        # format all.
+
+                        c = doc.get()
+                        tmp_src_fileWriter.write(c)
+                        formatAll = True
+                    else:
+
+                        # format selection.
+                        # c = ps.getSelectedText()
+                        # tmp_src_fileWriter.write(ps.getSelectedText())
+
+                        logger.warn(
+                            'Format selected text is not supported yet.')
+                        tmp_src_fileWriter.write('')
+
+                        # A kind of solution is to insert a special comment in
+                        # front and end of selection text, pythontidy it, and
+                        # extract text according that comment.
+
+                    tmp_src_fileWriter.close()
+
+                    PythonTidyAction.apply_formatting(
+                        tmp_src,
+                        self._editor.getEditorFile().getName(), logger)
+
+                    resulting_file = open(tmp_src, 'r')
+                    result = resulting_file.read()
+                    resulting_file.close()
+
+                    os.remove(tmp_src)
+
+                    if startLine >= doc.getNumberOfLines():
+                        startLine = doc.getNumberOfLines() - 1
+
+                    if formatAll:
+                        doc.set(result)
+                    else:
+
+                        # doc.replace(doc.getLineOffset(startLine), 0, result)
+
+                        pass
+                    if startLine >= doc.getNumberOfLines():
+                        startLine = doc.getNumberOfLines() - 1
+                    self._editor.selectAndReveal(
+                        doc.getLineOffset(startLine),
+                        0)
+
+                except java.lang.Exception as e:
+                    self.beep(e)
+                    logger.error(traceback.format_exc())
+                except:
+                    logger.error(traceback.format_exc())
+        systemGlobals["PythonTidyAction"] = PythonTidyAction
 
     def bindInInterface():
-        act = PythonTidyAction()
+        act = PythonTidyAction(editor)
 
         act.setActionDefinitionId(FORMAT_ACTION_DEFINITION_ID)
         act.setId(FORMAT_ACTION_ID)
         try:
             editor.setAction(FORMAT_ACTION_ID, act)
         except:
-            pass
+            logger.error('Binding failed')
 
     class RunInUi(Runnable):
 
@@ -162,7 +228,23 @@ if cmd == 'onCreateActions':
 
     def runInUi(callAble):
         """@param callable: the callable that will be run in the UI."""
+
         Display.getDefault().asyncExec(RunInUi(callAble))
-    print "Formatter:INFO:Binding formatter"
+
+    logger.info('Binding formatter')
+
+    # register Ctrl Shift F
+    # comment the line below to deactivate ctrl+shift+f shortcut
     runInUi(bindInInterface)
-    print "Formatter:INFO:Binded "
+
+    # Change these constants if the default does not suit your needs
+    ACTIVATION_STRING = 'f'
+    WAIT_FOR_ENTER = False
+
+    # Register the extension as an ActionListener.
+    editor.addOfflineActionListener(
+        ACTIVATION_STRING,
+        PythonTidyAction(editor),
+        'Format with autopep8 and docformatter',
+        WAIT_FOR_ENTER)
+    logger.info('Binded!!!! ')

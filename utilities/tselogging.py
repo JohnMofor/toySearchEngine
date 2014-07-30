@@ -35,7 +35,7 @@ class TseLogger(logging.getLoggerClass()):
                     raise KeyError(
                         "Attempt to overwrite %r in TseLogRecord" % key)
                 rec.__dict__[key] = extra[key]
-        return rec
+        return    rec
 
 
 def setupTseLogger():
