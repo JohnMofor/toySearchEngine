@@ -4,14 +4,13 @@ from django.db.transaction import commit_on_success
 
 logger = logging.getLogger('tse.u.util')
 
+def constant(f):
+    def fset(self, value):
+        raise SyntaxError
+    def fget(self):
+        return f()
+    return property(fget, fset)
 
-class UTIL(object):
-
-    def __init__(self):
-        pass
-
-    def __setattr__(self, attr, value):
-        pass
 
 @commit_on_success
 def bulk_save(queryset):

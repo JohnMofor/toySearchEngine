@@ -3,14 +3,16 @@ import requests
 from utilities.util import bulk_save, format_http_url
 import nltk
 import re
+from utilities.util import constant
 
 
-class CONST(object):
+class _CONST(object):
 
-    INDEXER_URL_CONNECTION_TIMEOUT = 5000
+    @constant
+    def INDEXER_URL_CONNECTION_TIMEOUT(self):
+        return 5000
 
-    def __setattr__(self, attr, value):
-        pass
+CONST = _CONST()
 
 
 class Indexer(object):

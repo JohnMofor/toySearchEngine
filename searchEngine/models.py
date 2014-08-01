@@ -5,31 +5,73 @@ Class defining TSE data structures and Django Models.
 
 from django.db import models
 import re
+from astropy.constants.constant import Constant
+from utilities.util import constant
 
+class _CONST(object):
+    @constant
+    def WORD_MAX_LENGTH(self):
+        return 70
+    
+    @constant
+    def URL_MAX_LENGTH(self):
+        return (2 * 1000 + 49)
+    
+    @constant
+    def RAW_HTML_MAX_LENGTH(self):
+        return (100 * 1000)
 
-class CONST(object):
+    @constant
+    def HTML_TEXT_CONTENT_MAX_LENGTH(self):
+        return (10 * 1000)
+    @constant
+    def LOCATIONS_MAX_LENGTH(self):
+        return (0.5 * 1000)
 
-    WORD_MAX_LENGTH = 70
-    URL_MAX_LENGTH = 2 * 1000 + 49
-    RAW_HTML_MAX_LENGTH = 100 * 1000
-    HTML_TEXT_CONTENT_MAX_LENGTH = 10 * 1000
-    LOCATIONS_MAX_LENGTH = 0.5 * 1000
+    @constant
+    def WFIP_WORD_DB_NAME(self):
+        return 'Word'
+    
+    @constant
+    def WFIP_IP_DB_NAME(self):
+        return 'IndexedPage'
+    
+    @constant 
+    def WFIP_UNIQUE_ID_DB_NAME(self):
+        return 'Unique ID'
+    
+    @constant
+    def WFIP_OFFSETSINIP_DB_NAME(self):
+        return 'Offsets'
 
-    WFIP_WORD_DB_NAME = 'Word'
-    WFIP_IP_DB_NAME = 'IndexedPage'
-    WFIP_UNIQUE_ID_DB_NAME = 'Unique ID'
-    WFIP_OFFSETSINIP_DB_NAME = 'Offsets'
-
-    IP_URL_DB_NAME = 'URL'
-    IP_RAW_HTML_DB_NAME = 'Raw HTML'
-    IP_TEXT_CONTENT_DB_NAME = 'Parsed Text'
-    IP_RAW_HTML__HASH_DB_NAME = 'HTML Hash'
-    IP_ORIGINAL_PAGE_DB_NAME = 'Original Page'
-    IP_INDEGREE_DB_NAME = 'In-degree'
+    @constant
+    def IP_URL_DB_NAME(self):
+        return 'URL'
+    
+    @constant
+    def IP_RAW_HTML_DB_NAME(self):
+        return 'Raw HTML'
+    
+    @constant
+    def IP_TEXT_CONTENT_DB_NAME(self):
+        return 'Parsed Text'
+    
+    @Constant
+    def IP_RAW_HTML__HASH_DB_NAME(self):
+        return 'HTML Hash'
+    
+    @Constant
+    def IP_ORIGINAL_PAGE_DB_NAME(self):
+        return 'Original Page'
+    
+    @constant
+    def IP_INDEGREE_DB_NAME(self):
+        return 'In-degree'
 
     def __setattr__(self, attr, value):
         pass
 
+CONST = _CONST()
 
 class WordFromIndexedPage(models.Model):
 
