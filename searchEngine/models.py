@@ -5,7 +5,6 @@ Class defining TSE data structures and Django Models.
 
 from django.db import models
 import re
-from astropy.constants.constant import Constant
 from utilities.util import constant
 
 class _CONST(object):
@@ -56,11 +55,11 @@ class _CONST(object):
     def IP_TEXT_CONTENT_DB_NAME(self):
         return 'Parsed Text'
     
-    @Constant
+    @constant
     def IP_RAW_HTML__HASH_DB_NAME(self):
         return 'HTML Hash'
     
-    @Constant
+    @constant
     def IP_ORIGINAL_PAGE_DB_NAME(self):
         return 'Original Page'
     

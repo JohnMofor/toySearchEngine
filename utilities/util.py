@@ -8,9 +8,8 @@ def constant(f):
     def fset(self, value):
         raise SyntaxError
     def fget(self):
-        return f()
+        return f(self)
     return property(fget, fset)
-
 
 @commit_on_success
 def bulk_save(queryset):
