@@ -95,7 +95,7 @@ if cmd == 'onCreateActions':
 
             @staticmethod
             def autopep8_cmd(f):  # @NoSelf
-                return 'autopep8 -a -a -a --in-place --experimental "{f}"'.format(
+                return 'autopep8 -a -a -a --in-place --experimental --max-line-length 100 "{f}"'.format(
                     f=str(f))
 
             @staticmethod
@@ -250,3 +250,4 @@ if cmd == 'onCreateActions':
         'Format with autopep8 and docformatter',
         WAIT_FOR_ENTER)
     logger.info('Binded!!!! ')
+    
