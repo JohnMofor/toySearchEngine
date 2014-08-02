@@ -4,6 +4,7 @@ from utilities.util import bulk_save, format_http_url
 import nltk
 import re
 from utilities.util import constant
+from searchEngine.models import WordFromIndexedPage, IndexedPage
 
 
 class _CONST(object):
@@ -24,14 +25,19 @@ class Indexer(object):
 
     def populate_indexedPage(self, final_url):
         raw_html = requests.get(final_url).content
-        raw_html_hash = str(hash(raw_html))
-        text_content = nltk.clean_html(raw_html_hash)
+        raw_html_hash = str(hash(raw_html)) #unused
+        text_content = nltk.clean_html(raw_html)
         all_words = re.findall(re.compile('\w+'), text_content)
 
-#         tokenizer = RegexpTokenizer(r'\w+')
-#         words = tokenizer.tokenize(text_content)
-
-        # todo: logic for locations
+        #Locations are the indices in all_words at which a particular word is
+        for i in xrange(len(all_words)):
+            current_word = all_words[i]
+            if current_word not in self.cache:
+                self.cache[current_word] = WordFromIndexedPage(IndexedPage=self.url, word = current_word)
+            self.word_location_cache[current_word].append(i)
+        
+        for key in self.cache:
+            self.cache[key].set_offset(self.word_location_cache[key])
 
         all_models_to_save = self.cache.values()
         all_models_to_save.append(final_url)
