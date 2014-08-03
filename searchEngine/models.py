@@ -2,7 +2,7 @@
 
 from django.db import models
 import re
-from utilities.util import constant
+from utilities.util import constant, welform_url
 
 
 class _CONST(object):
@@ -80,7 +80,7 @@ class WordFromIndexedPage(models.Model):
         null=False,
         db_column=CONST.WFIP_WORD_DB_NAME)
 
-    indexedPage = models.ForeignKey(
+    indexed_page = models.ForeignKey(
         'IndexedPage',
         null=False,
         related_name='words',
@@ -98,7 +98,7 @@ class WordFromIndexedPage(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self._unique_id = hash(str(self.word) + str(self.indexedPage.url))
+            self._unique_id = hash(str(self.word) + str(self.indexed_page.url))
         super(WordFromIndexedPage, self).save(*args, **kwargs)
 
     def get_offsets(self):
@@ -107,8 +107,8 @@ class WordFromIndexedPage(models.Model):
     def __unicode__(self):
         components = [
             'WordFromIndexedPage<word:', str(
-                self.word), 'indexedPage:', str(
-                self.indexedPage.url), 'offsets_in_indexedPage:', str(
+                self.word), 'indexed_page:', str(
+                self.indexed_page.url), 'offsets_in_indexedPage:', str(
                 self.offsets_in_indexedPage)]
         return ('').join(components)
 
@@ -141,6 +141,11 @@ class IndexedPage(models.Model):
 
     indegree = models.IntegerField(
         null=True, db_column=CONST.IP_INDEGREE_DB_NAME)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.url = welform_url(self.url)
+        super(IndexedPage, self).save(*args, **kwargs)
 
     def get_words(self):
         return self.words.all()

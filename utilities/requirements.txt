@@ -1,3 +1,5 @@
 django==1.6.5
 coverage
 pyyaml
+requests
+nltk

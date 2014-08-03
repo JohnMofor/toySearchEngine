@@ -1,3 +1,4 @@
 /resetDB.bat
 /.coverage
 /.settings
+/searchEngineDB.sqlite3

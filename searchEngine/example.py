@@ -45,7 +45,7 @@ raw_input("Inspect database (F5=refresh),\
 for update in cache.values():
     update.delete()
 WordFromIndexedPage(
-    indexedPage=url,
+    indexed_page=url,
     word="google",
     offsets_in_indexedPage=str(
         [1])).save()

@@ -14,7 +14,7 @@ class IndexedPageModelTest(TestCase):
         google_page.save()
         word_list = []
         for word in word_list:
-            WordFromIndexedPage(word = word, indexedPage = google_page, offsets_in_indexedPage = str([1])).save()
+            WordFromIndexedPage(word = word, indexed_page = google_page, offsets_in_indexedPage = str([1])).save()
         self.assertEqual(len(google_page.words.all()), len(word_list))
         all_words = map(lambda element:element.word, google_page.get_words())
         for word in word_list:
@@ -26,7 +26,7 @@ class IndexedPageModelTest(TestCase):
         google_page.save()
         word_list = ["google", "feeling", "lucky", "search"]
         for word in word_list:
-            WordFromIndexedPage(word = word, indexedPage = google_page, offsets_in_indexedPage = str([1])).save()
+            WordFromIndexedPage(word = word, indexed_page = google_page, offsets_in_indexedPage = str([1])).save()
         self.assertEqual(len(google_page.words.all()), len(word_list))
         all_words = map(lambda element:element.word, google_page.get_words())
         for word in word_list:
@@ -38,7 +38,7 @@ class IndexedPageModelTest(TestCase):
         google_page.save()
         word_list = ["google", "feeling", "lucky", "search"]*3
         for word in word_list:
-            WordFromIndexedPage(word = word, indexedPage = google_page, offsets_in_indexedPage = str([1])).save()
+            WordFromIndexedPage(word = word, indexed_page = google_page, offsets_in_indexedPage = str([1])).save()
         self.assertEqual(len(google_page.words.all()), len(set(word_list)))
         all_words = map(lambda element:element.word, google_page.get_words())
         for word in word_list:
