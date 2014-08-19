@@ -1,7 +1,7 @@
 import threading
 
 from indexer import Indexer
-from utilities.util import TQueue, RunOnMainThread
+from utilities.util import TQueue, RunOnMainThread, profile_main
 import utilities.tselogging as logging
 from searchEngine.models import IndexedPage, WordFromIndexedPage
 
@@ -89,7 +89,7 @@ class Crawler(threading.Thread):
                 write_cmd.run()
             else:
                 logger.warn("Main thread received a command it couldn't parse: ", write_cmd)
-        
+
         # Crawling complete. Hola the team!
         logger.info(
             "Crawling complete. Logged: {n_urls}".format(
@@ -97,12 +97,17 @@ class Crawler(threading.Thread):
                     self.finished_indexers_list)))
 
 
-if __name__ == '__main__':
-    [x.delete() for x in list(IndexedPage.objects.all()) + list(WordFromIndexedPage.objects.all())]
+def main():
+    #[x.delete() for x in list(IndexedPage.objects.all()) + list(WordFromIndexedPage.objects.all())]
     crawler = Crawler(
         links_queue=TQueue(
-            ["http://www.animefreak.tv/watch/mahouka-koukou-no-rettousei-episode-18-online"]),
-        max_active_indexers=10)
-    crawler.start()
-    crawler.join()
+            ["https://www.facebook.com/moforjohn"]),
+        max_active_indexers=10,
+        max_links_to_crawl=50)
+    #crawler.start()
+    #crawler.join()
+    crawler.run()
     logger.info("Crawling complete!")
+
+if __name__ == '__main__':
+    profile_main()

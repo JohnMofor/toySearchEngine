@@ -249,5 +249,5 @@ if cmd == 'onCreateActions':
         PythonTidyAction(editor),
         'Format with autopep8 and docformatter',
         WAIT_FOR_ENTER)
-    logger.info('Binded!!!! ')
+    logger.info('Binding successful!!!! ')
     

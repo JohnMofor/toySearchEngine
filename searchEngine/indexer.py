@@ -26,7 +26,7 @@ class _CONST(object):
 CONST = _CONST()
 
 
-@transaction.atomic
+#@transaction.atomic
 def page_already_indexed(indexed_page, text_content_hash):
     original = IndexedPage.objects.filter(text_content_hash=text_content_hash)
     if original.exists():
@@ -58,6 +58,7 @@ class Indexer(threading.Thread):
         self.links_queue = links_queue
 
         self.url = indexed_page.url
+        self.already_indexed = True
 
         self.cache = {}
         self.word_location_cache = defaultdict(list)
@@ -75,10 +76,14 @@ class Indexer(threading.Thread):
         for key in self.cache:
             self.cache[key].set_offsets(self.word_location_cache[key])
 
+    def done(self):
+        if self.on_finished_indexing is not None:
+            self.on_finished_indexing(self.url, self.already_indexed)
+        
     def populate_indexedPage(self, final_url):
 
-        self.raw_html = requests.get(final_url).content
-        self.text_content = nltk.clean_html(self.raw_html)
+        self.raw_html = str(requests.get(final_url).content)
+        self.text_content = str(nltk.clean_html(self.raw_html))
         self.text_content_hash = str(hash(self.text_content))
 
         command_for_page_already_indexed = RunOnMainThread(
@@ -92,6 +97,7 @@ class Indexer(threading.Thread):
         self.already_indexed = already_indexed
         if already_indexed:
             logger.info("IndexedPage {url} is NOT an Original.".format(url=self.url))
+            self.done()
             return
 
         logger.info("IndexedPage {url} is an original".format(url=self.url))
@@ -115,9 +121,8 @@ class Indexer(threading.Thread):
                      for link in lxml.html.fromstring(self.raw_html).xpath('//a/@href')]
         if hasattr(self.links_queue, "extend"):
             self.links_queue.extend(all_links)
-        if (self.on_finished_indexing is not None):
-            self.on_finished_indexing(self.url, self.already_indexed)
         logger.info("finished indexing url={url}".format(url=self.url))
+        self.done()
 
     def run(self):
         logger.info("starting to index page url={url}".format(url=self.url))
@@ -125,6 +130,13 @@ class Indexer(threading.Thread):
         if self.final_url is not None:
             if self.links_queue is not None:
                 self.populate_indexedPage(self.final_url)
+            else: 
+                logger.warn("links_queue is None! Aborting")
+                self.done()
+        else: 
+            logger.warn("final_url is None. No content picked up. Aborting")
+            self.done()
+        
 
 
 def main():

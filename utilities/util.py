@@ -9,6 +9,21 @@ import utilities.tselogging as logging
 
 logger = logging.getLogger('tse.u.util')
 
+# Decorators
+
+
+def log_args_and_ret_values(func):
+    def inner(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        logger.debug(
+            "ARGS_LOGGER: {f_name}{args} ====> {ret}".format(
+                f_name=func.__name__,
+                args=(args, kwargs),
+                kwargs=kwargs,
+                ret=ret))
+        return ret
+    return inner
+
 
 def constant(f):
     '''Simple read-only decorator'''
@@ -19,6 +34,8 @@ def constant(f):
     def fget(self):
         return f(self)
     return property(fget, fset)
+
+# Helper functions
 
 
 @commit_on_success
@@ -53,6 +70,18 @@ def final_url_after_redirects(raw_url, allow_redirects=True):
         return None
 
 
+def profile_main(cmd="main()"):
+    import cProfile
+    import pstats
+    import os
+
+    cProfile.run(cmd, "profileRes.txt")
+    p = pstats.Stats("profileRes.txt")
+    p.sort_stats('cumulative').print_stats()
+    os.remove("profileRes.txt")
+
+
+# Helper classes
 class TQueue(Queue.Queue):
 
     """Simple wrapper about Queue.Queue (FIFO) to add more conventional
@@ -79,7 +108,7 @@ class TQueue(Queue.Queue):
 class RunOnMainThread(object):
 
     """Type representing an instance of a command."""
-
+    #@log_args_and_ret_values
     def __init__(
             self,
             func_from_other_thread=None,
@@ -105,12 +134,16 @@ class RunOnMainThread(object):
             self.call_back_on_other_thread(ret_value)
 
 
-def profile_main(cmd):
-    import cProfile
-    import pstats
-    import os
+# Main
+@log_args_and_ret_values
+def tst(a, t=6):
+    return 5 * a + t
 
-    cProfile.run(cmd, "profileRes.txt")
-    p = pstats.Stats("profileRes.txt")
-    p.sort_stats('cumulative').print_stats()
-    os.remove("profileRes.txt")
+
+def main():
+    pass
+    # print tst(3, t=8)
+
+
+if __name__ == '__main__':
+    main()
