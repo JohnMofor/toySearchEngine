@@ -101,7 +101,7 @@ def main():
     #[x.delete() for x in list(IndexedPage.objects.all()) + list(WordFromIndexedPage.objects.all())]
     crawler = Crawler(
         links_queue=TQueue(
-            ["https://www.facebook.com/moforjohn"]),
+            ["https://www.facebook.com"]),
         max_active_indexers=10,
         max_links_to_crawl=50)
     #crawler.start()
